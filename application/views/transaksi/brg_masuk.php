@@ -50,6 +50,15 @@ $no++;
 endforeach;
 ?>                                               
                                                 </tbody>
+                                                <tfoot>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th>Total Barang Masuk</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tfoot>
                                             </table>
                                         </div>
                                     </div>
@@ -83,7 +92,33 @@ endforeach;
     <?php $this->load->view("static/footer") ?>
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#tbl_bm').DataTable();
+        $('#tbl_bm').DataTable({
+            "footerCallback" : function ( row, data, start, end, display ) {
+        var api = this.api();
+        nb_cols = api.columns().nodes().length;
+        var j = 5;
+        //what the heck is this
+        var intVal = function ( i ) {
+            return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+        };
+        while(j < nb_cols){
+          var pageTotal = api
+                .column( j, { page: 'current'} )
+                .data()
+                .reduce( function (a, b) {
+                  sot = intVal(a) + intVal(b)
+                  return sot.toLocaleString();
+                }, 0 );
+          // Update footer
+          $( api.column( j ).footer() ).html(pageTotal);
+          j++;
+          if (j == 6){
+              break
+          }
+        }
+      }
+
+        });
     } );
 </script>
 
